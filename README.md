@@ -2,70 +2,117 @@
 
 Interactive skillchain builder and reference tool for Final Fantasy XI, sourced from BG-wiki.
 
-## Quick Start (local)
+---
 
-```bash
-./start.sh
-```
+## Running with Docker (recommended)
 
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
 
-## Docker
+### Start
 
 ```bash
 docker compose up --build
 ```
 
-Same URLs as above. Hot-reload is active for both services.
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:8000 |
+
+The `--build` flag is only needed the first time or after dependency changes. Subsequent starts:
+
+```bash
+docker compose up
+```
+
+### Stop
+
+```bash
+docker compose down
+```
+
+### How it works
+
+| Container | Base image | What it runs |
+|---|---|---|
+| `backend` | `python:3.12-slim` | FastAPI via uvicorn on port 8000 |
+| `frontend` | `node:20-alpine` | Vite dev server on port 5173 |
+
+The frontend container sets `API_URL=http://backend:8000` so Vite's proxy routes `/api/*` to the backend service automatically — no manual config needed.
+
+Both containers mount their source directories as volumes, so **hot-reload works** for both Python and TypeScript changes without rebuilding.
+
+---
+
+## Running locally (without Docker)
+
+### Prerequisites
+- Python 3.12+
+- Node.js 20+
+
+```bash
+./start.sh
+```
+
+This creates a Python venv at `backend/.venv` on first run, installs dependencies, and starts both servers.
+
+---
 
 ## Vercel Deployment
 
-1. Push to GitHub (see below)
+1. Push to GitHub
 2. Go to [vercel.com](https://vercel.com) → **Add New Project** → import your repo
-3. Leave all settings as defaults — `vercel.json` handles the build
-4. Click **Deploy**
+3. Select **"Other"** as the framework preset
+4. Leave all other settings as defaults — `vercel.json` handles everything
+5. Click **Deploy**
 
-The frontend and `/api/data` serverless function deploy together automatically on every push to `main`.
+Every push to `main` triggers an automatic redeploy.
 
-## GitHub
+The `api/data.py` serverless function mirrors the FastAPI backend, serving the same game data without needing a running Python server.
 
-```bash
-git remote add origin https://github.com/<your-username>/ffxi.git
-git push -u origin main
-```
+---
 
 ## Updating Weapon Skill Data
 
-Weapon skill data is generated from a local BG-wiki scrape. To refresh it:
+Weapon skill data is generated from a local BG-wiki scrape. The generated files are committed so the app works out of the box. To refresh from the latest wiki:
 
 ```bash
-# 1. Download/update wiki pages (resumable — safe to re-run)
+# Download/update wiki pages (resumable — safe to re-run)
 python3 scraper.py
 
-# 2. Regenerate backend/data/weapon_skills.py from scraped pages
+# Regenerate backend/data/weapon_skills.py
 python3 generate_ws.py
 ```
 
-The `data/` directory (278 MB of raw wiki pages) is gitignored. The generated
-`backend/data/*.py` files are committed and work standalone without the scrape.
+The `data/` directory (~280 MB of raw wiki pages) is gitignored. Only the small generated `backend/data/*.py` files are committed.
+
+---
 
 ## Project Structure
 
 ```
-├── api/                  Vercel serverless function (mirrors /api/data)
+├── api/                        Vercel serverless function
 ├── backend/
-│   ├── data/             Game data as Python modules (committed)
-│   └── main.py           FastAPI app for local/Docker dev
+│   ├── data/                   Game data as Python modules (committed)
+│   ├── ffxiah.py               FFXIAH character lookup proxy
+│   └── main.py                 FastAPI app (local & Docker)
 ├── frontend/
 │   └── src/
-│       ├── components/   React components by feature
-│       ├── lib/          Chain logic, API client, constants
-│       └── context/      DataContext (global game data)
-├── generate_ws.py        Regenerates weapon_skills.py from scraped data
-├── scraper.py            BG-wiki offline scraper
-├── docker-compose.yml
+│       ├── components/
+│       │   ├── ChainBuilder/   Skillchain builder (5 files)
+│       │   ├── Character/      Player profile & FFXIAH lookup
+│       │   ├── MagicBurst/
+│       │   ├── SkillchainReference/
+│       │   ├── WeaponSkills/
+│       │   └── shared/         Badge, ElChip
+│       ├── context/            DataContext (global game data)
+│       └── lib/                Chain logic, API client, constants
 ├── Dockerfile.backend
+├── docker-compose.yml
+├── generate_ws.py              Regenerates weapon_skills.py from scrape
+├── scraper.py                  BG-wiki offline scraper
+├── start.sh                    Local dev launcher (no Docker)
 └── vercel.json
 ```
 

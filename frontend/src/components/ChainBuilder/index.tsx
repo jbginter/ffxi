@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { ChainStep, WeaponSkill } from '../../types';
+import type { CharacterJob, ChainStep, WeaponSkill } from '../../types';
 import { useData } from '../../context/DataContext';
 import { ChainRail } from './ChainRail';
 import { BurstPanel } from './BurstPanel';
@@ -7,7 +7,7 @@ import { WsList } from './WsList';
 import { ManualProps } from './ManualProps';
 import { computeResults, resolveChain } from '../../lib/chain';
 
-export function ChainBuilder() {
+export function ChainBuilder({ characterJobs }: { characterJobs: CharacterJob[] }) {
   const { data } = useData();
   const [chain, setChain] = useState<ChainStep[]>([]);
   const [wFilter, setWFilter] = useState('all');
@@ -33,6 +33,11 @@ export function ChainBuilder() {
 
   if (!data) return null;
 
+  const jobSet = new Set(characterJobs.map(j => j.job));
+  const visibleWs = jobSet.size > 0
+    ? data.ws.filter(ws => ws.j.split('/').some(j => jobSet.has(j)))
+    : data.ws;
+
   const results = computeResults(chain, data.combos, data.props);
   const lastSC = results.length > 0 ? results[results.length - 1] : null;
 
@@ -55,7 +60,7 @@ export function ChainBuilder() {
       {lastSC && <BurstPanel scId={lastSC} props={data.props} mb={data.mb} />}
       <div className="sel-area">
         <WsList
-          ws={data.ws}
+          ws={visibleWs}
           props={data.props}
           wFilter={wFilter}
           onFilterChange={setWFilter}

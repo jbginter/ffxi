@@ -27,4 +27,31 @@ export interface GameData {
   ws: WeaponSkill[];
 }
 
-export type TabId = 'builder' | 'reference' | 'magicburst' | 'weaponskills';
+export type TabId = 'builder' | 'reference' | 'magicburst' | 'weaponskills' | 'character';
+
+export interface CharacterJob {
+  job: string;
+  level: number;
+}
+
+export interface CharacterProfile {
+  name: string;
+  server: string;
+  jobs: CharacterJob[];
+}
+
+export interface AHSale {
+  saleon: number;
+  seller_name: string;
+  buyer_name: string;
+  price: number;
+  stack?: boolean;
+}
+
+export interface FFXIAHCharacter {
+  name: string;
+  server: string;
+  url: string;
+  id?: number;
+  sales: AHSale[];
+}
