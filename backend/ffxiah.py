@@ -38,9 +38,9 @@ def lookup(server: str, name: str) -> dict:
     except Exception as e:
         return {"error": str(e)}
 
-    # Check for "not found" page
-    if "Player Not Found" in html or "not found" in html.lower() and "Player.id" not in html:
-        return {"error": "Character not found"}
+    # Player.id is the authoritative indicator of a valid character page
+    if not re.search(r"Player\.id\s*=\s*\d+", html):
+        return {"error": "Character not found on this server"}
 
     result: dict = {"name": name, "server": server, "url": url}
 
