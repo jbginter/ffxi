@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FFXI Skillchain &amp; Magic Burst Reference</title>
+  <style>
+    :root {
+      --bg-0: #07070d;
+      --bg-1: #0f0f1a;
+      --bg-2: #171724;
+      --bg-3: #1f1f30;
+      --bg-hover: #252538;
+      --border: #2a2a40;
+      --border-hi: #484870;
+      --text-0: #e8e8f4;
+      --text-1: #9090b4;
+      --text-2: #5a5a7a;
+      --gold: #d4af37;
+      --gold-dim: #7a6418;
+      --fire: #e85d04; --ice: #48cae4; --wind: #55a630; --earth: #6a994e;
+      --thunder: #9b5de5; --water: #0096c7; --light: #f9c74f; --dark: #9d4edd;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui,-apple-system,sans-serif; background: var(--bg-0); color: var(--text-0); min-height: 100vh; }
+
+    /* ── Header ── */
+    .hdr {
+      background: linear-gradient(135deg, #07070d 0%, #150e20 60%, #07070d 100%);
+      border-bottom: 1px solid var(--gold-dim);
+      padding: 14px 24px; display: flex; align-items: center; gap: 14px;
+    }
+    .hdr-logo { font-size: 1.6rem; }
+    .hdr-title { font-size: 1.35rem; font-weight: 700; color: var(--gold); letter-spacing: .05em; text-shadow: 0 0 24px rgba(212,175,55,.4); }
+    .hdr-sub { font-size: .78rem; color: var(--text-1); margin-top: 2px; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; background: var(--bg-1); border-bottom: 1px solid var(--border); padding: 0 20px; gap: 2px; overflow-x: auto; }
+    .tab { padding: 11px 18px; cursor: pointer; border: none; background: none; color: var(--text-1); font-size: .88rem; font-weight: 500; border-bottom: 2px solid transparent; transition: all .18s; white-space: nowrap; }
+    .tab:hover { color: var(--text-0); }
+    .tab.on { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* ── Panes ── */
+    .pane { display: none; padding: 22px; max-width: 1440px; margin: 0 auto; }
+    .pane.on { display: block; }
+
+    /* ── Section titles ── */
+    .sec-title { font-size: 1.15rem; font-weight: 700; color: var(--gold); margin-bottom: 14px; }
+    .sec-sub { font-size: .82rem; color: var(--text-1); margin-bottom: 14px; }
+
+    /* ── Property badge ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 4px; font-size: .75rem; font-weight: 600;
+      border: 1px solid rgba(255,255,255,.12); white-space: nowrap;
+    }
+    .badge .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Element chip ── */
+    .el-chip { padding: 2px 8px; border-radius: 3px; font-size: .7rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+
+    /* ── Cards ── */
+    .card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; }
+
+    /* ────────────────────────────────────────────
+       CHAIN BUILDER
+    ──────────────────────────────────────────── */
+    .builder { display: flex; flex-direction: column; gap: 20px; }
+
+    .chain-rail {
+      display: flex; align-items: center; gap: 0;
+      padding: 18px 20px; background: var(--bg-1); border: 1px solid var(--border); border-radius: 8px;
+      min-height: 120px; overflow-x: auto;
+    }
+
+    .ws-node { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+    .ws-card {
+      background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; min-width: 130px; max-width: 170px; position: relative; cursor: default;
+      transition: border-color .15s;
+    }
+    .ws-card .ws-name { font-size: .82rem; font-weight: 600; margin-bottom: 2px; }
+    .ws-card .ws-weap { font-size: .68rem; color: var(--text-2); margin-bottom: 6px; }
+    .ws-card .ws-props { display: flex; flex-wrap: wrap; gap: 3px; }
+    .ws-card .rm-btn {
+      position: absolute; top: 4px; right: 4px; width: 16px; height: 16px;
+      border-radius: 50%; background: rgba(255,60,60,.2); border: none; color: #ff7070;
+      font-size: 9px; cursor: pointer; display: none; align-items: center; justify-content: center;
+    }
+    .ws-card:hover .rm-btn { display: flex; }
+
+    .sc-bridge {
+      display: flex; flex-direction: column; align-items: center; flex-shrink: 0;
+      padding: 0 6px; min-width: 90px;
+    }
+    .sc-pill {
+      padding: 4px 10px; border-radius: 20px; font-size: .72rem; font-weight: 700;
+      border: 1px solid; text-align: center; margin-bottom: 5px; white-space: nowrap;
+    }
+    .sc-pill.miss { color: var(--text-2); border-color: var(--border); background: none; }
+    .bridge-line {
+      width: 100%; height: 2px; background: var(--border); position: relative;
+    }
+    .bridge-line::after { content: '▶'; position: absolute; right: -5px; top: -8px; color: var(--text-2); font-size: 9px; }
+
+    .add-node {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; min-width: 120px; height: 84px; border: 1px dashed var(--border);
+      border-radius: 8px; color: var(--text-2); font-size: .78rem; cursor: default;
+    }
+
+    /* burst panel */
+    .burst-panel { padding: 16px 18px; }
+    .burst-label { font-size: .72rem; color: var(--text-1); font-weight: 600; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; }
+    .burst-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .burst-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 14px; border-radius: 20px; font-size: .8rem; font-weight: 600;
+      border: 1px solid;
+    }
+
+    /* selector area */
+    .sel-area { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .sel-panel { overflow: hidden; }
+    .sel-hdr { padding: 10px 14px; background: var(--bg-3); border-bottom: 1px solid var(--border); font-size: .88rem; font-weight: 600; color: var(--gold); }
+    .srch { width: 100%; background: var(--bg-0); border: none; border-bottom: 1px solid var(--border); color: var(--text-0); padding: 9px 14px; font-size: .82rem; outline: none; }
+    .srch::placeholder { color: var(--text-2); }
+
+    .filt-bar { display: flex; flex-wrap: wrap; gap: 4px; padding: 7px 10px; border-bottom: 1px solid var(--border); }
+    .filt-btn { padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-3); color: var(--text-1); font-size: .7rem; cursor: pointer; transition: all .13s; }
+    .filt-btn:hover, .filt-btn.on { border-color: var(--gold-dim); color: var(--gold); background: rgba(212,175,55,.1); }
+
+    .ws-list-scroll { max-height: 280px; overflow-y: auto; }
+    .ws-row {
+      display: flex; align-items: center; gap: 10px; padding: 7px 14px;
+      border-bottom: 1px solid var(--border); cursor: pointer; transition: background .12s;
+    }
+    .ws-row:hover { background: var(--bg-hover); }
+    .ws-row.dim { opacity: .35; pointer-events: none; }
+    .ws-row .r-name { font-size: .82rem; font-weight: 500; flex: 1; }
+    .ws-row .r-weap { font-size: .68rem; color: var(--text-2); }
+    .ws-row .r-props { display: flex; flex-wrap: wrap; gap: 3px; }
+
+    /* manual prop selector */
+    .prop-grid { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; }
+    .prop-sel-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 11px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--bg-3); color: var(--text-1); font-size: .78rem; cursor: pointer; transition: all .13s;
+    }
+    .prop-sel-btn:hover { border-color: var(--border-hi); color: var(--text-0); }
+    .prop-sel-btn.on { border-color: var(--gold); }
+    .add-manual-btn {
+      margin: 0 12px 12px; width: calc(100% - 24px); padding: 8px;
+      background: rgba(212,175,55,.12); border: 1px solid var(--gold-dim); border-radius: 6px;
+      color: var(--gold); font-size: .82rem; cursor: pointer; transition: all .13s;
+    }
+    .add-manual-btn:hover { background: rgba(212,175,55,.2); }
+
+    .clear-btn {
+      padding: 7px 16px; background: transparent; border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text-1); cursor: pointer; font-size: .82rem; transition: all .13s;
+    }
+    .clear-btn:hover { border-color: var(--border-hi); color: var(--text-0); }
+
+    /* ────────────────────────────────────────────
+       REFERENCE
+    ──────────────────────────────────────────── */
+    .ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; margin-bottom: 6px; }
+    .ref-card { padding: 14px; }
+    .ref-card-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .ref-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0; }
+    .ref-name { font-size: 1rem; font-weight: 700; }
+    .ref-lv { font-size: .68rem; color: var(--text-2); margin-top: 1px; }
+    .ref-els { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+    .ref-from { font-size: .68rem; color: var(--text-2); margin-top: 8px; margin-bottom: 3px; }
+    .ref-combo { display: flex; align-items: center; gap: 4px; font-size: .7rem; margin-top: 2px; }
+
+    /* combo table */
+    .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+    .ctbl { width: 100%; border-collapse: collapse; font-size: .72rem; }
+    .ctbl th, .ctbl td { padding: 7px 10px; border: 1px solid var(--border); text-align: center; }
+    .ctbl th { background: var(--bg-3); color: var(--text-1); font-weight: 600; white-space: nowrap; }
+    .ctbl td.miss { color: var(--text-2); }
+    .ctbl td.hit { font-weight: 700; }
+
+    /* ────────────────────────────────────────────
+       MAGIC BURST
+    ──────────────────────────────────────────── */
+    .mb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+    .mb-card { padding: 14px; }
+    .mb-el-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .mb-el-icon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .mb-el-name { font-size: 1.05rem; font-weight: 700; }
+    .mb-chains { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .dmg-tbl { border-collapse: collapse; font-size: .82rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .dmg-tbl th, .dmg-tbl td { padding: 8px 16px; border-bottom: 1px solid var(--border); text-align: left; }
+    .dmg-tbl th { background: var(--bg-3); color: var(--text-1); font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; }
+    .dmg-tbl td:last-child { color: #7ab3e0; font-weight: 600; }
+
+    /* ────────────────────────────────────────────
+       WEAPON SKILLS TABLE
+    ──────────────────────────────────────────── */
+    .ws-filters { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .ws-filters input, .ws-filters select {
+      padding: 8px 12px; background: var(--bg-1); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text-0); font-size: .82rem; outline: none;
+    }
+    .ws-filters input { flex: 1; min-width: 180px; }
+    .ws-filters input::placeholder { color: var(--text-2); }
+
+    .wst-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 8px; max-height: 640px; }
+    .wst { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    .wst th, .wst td { padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
+    .wst th { background: var(--bg-3); color: var(--text-1); font-weight: 600; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; position: sticky; top: 0; z-index: 1; }
+    .wst tr:hover td { background: var(--bg-hover); }
+    .wst .props-cell { display: flex; flex-wrap: wrap; gap: 3px; }
+
+    /* ── Scrollbars ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg-1); }
+    ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
+
+    /* ── Utility ── */
+    .mt-4 { margin-top: 16px; }
+    .mt-6 { margin-top: 24px; }
+    .notes { font-size: .82rem; color: var(--text-1); display: flex; flex-direction: column; gap: 7px; list-style: none; }
+
+    @media (max-width: 700px) {
+      .sel-area { grid-template-columns: 1fr; }
+      .ref-grid, .mb-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════ HEADER ══════════════════ -->
+<div class="hdr">
+  <div class="hdr-logo">⚔️</div>
+  <div>
+    <div class="hdr-title">FFXI Skillchain &amp; Magic Burst</div>
+    <div class="hdr-sub">Interactive reference — data sourced from BG-wiki</div>
+  </div>
+</div>
+
+<!-- ══════════════════ TABS ══════════════════ -->
+<div class="tabs">
+  <button class="tab on" onclick="showTab('builder',this)">Chain Builder</button>
+  <button class="tab"    onclick="showTab('reference',this)">Skillchain Reference</button>
+  <button class="tab"    onclick="showTab('magicburst',this)">Magic Burst</button>
+  <button class="tab"    onclick="showTab('weaponskills',this)">Weapon Skills</button>
+</div>
+
+<!-- ══════════════════ CHAIN BUILDER ══════════════════ -->
+<div class="pane on" id="pane-builder">
+  <div class="builder">
+    <div>
+      <div class="sec-title">Skillchain Builder</div>
+      <div class="sec-sub">Click a weapon skill below to add it to the chain. Each step resolves the skillchain formed and updates magic burst options.</div>
+    </div>
+
+    <!-- Chain rail -->
+    <div class="chain-rail" id="chainRail">
+      <div id="chainEmpty" style="color:var(--text-2);font-size:.88rem;margin:auto;">
+        Select a weapon skill below to begin the chain
+      </div>
+    </div>
+
+    <!-- Magic burst result -->
+    <div class="card burst-panel" id="burstPanel" style="display:none">
+      <div class="burst-label">Magic Burst — last skillchain</div>
+      <div class="burst-chips" id="burstChips"></div>
+    </div>
+
+    <!-- Selector area -->
+    <div class="sel-area">
+      <!-- WS search -->
+      <div class="card sel-panel">
+        <div class="sel-hdr">Weapon Skills</div>
+        <input class="srch" id="wsSrch" placeholder="Search name, weapon, job…" oninput="renderWsList()">
+        <div class="filt-bar" id="filtBar">
+          <button class="filt-btn on" onclick="setWF('all',this)">All</button>
+        </div>
+        <div class="ws-list-scroll" id="wsList"></div>
+      </div>
+
+      <!-- Manual props -->
+      <div class="card sel-panel">
+        <div class="sel-hdr">Manual Property Selection</div>
+        <div class="sec-sub" style="padding:10px 12px 0;margin:0;font-size:.78rem;">Pick properties directly (for unlisted WS or custom testing):</div>
+        <div class="prop-grid" id="propGrid"></div>
+        <button class="add-manual-btn" onclick="addManualStep()">+ Add Step with Selected Properties</button>
+      </div>
+    </div>
+
+    <div><button class="clear-btn" onclick="clearChain()">✕ Clear Chain</button></div>
+  </div>
+</div>
+
+<!-- ══════════════════ SKILLCHAIN REFERENCE ══════════════════ -->
+<div class="pane" id="pane-reference">
+  <div class="sec-title">Skillchain Properties Reference</div>
+
+  <div style="color:#7ab3e0;font-size:.9rem;font-weight:600;margin-bottom:10px;">Level 1 Skillchains</div>
+  <div class="ref-grid" id="refL1"></div>
+
+  <div style="color:#c4a8e8;font-size:.9rem;font-weight:600;margin:22px 0 10px;">Level 2 Skillchains</div>
+  <div class="ref-grid" id="refL2"></div>
+
+  <div style="color:#e8a020;font-size:.9rem;font-weight:600;margin:22px 0 10px;">Level 3 Skillchains</div>
+  <div class="ref-grid" id="refL3"></div>
+
+  <div style="color:#e8e870;font-size:.9rem;font-weight:600;margin:22px 0 10px;">Level 4 &amp; Aeonic Skillchains</div>
+  <div class="ref-grid" id="refL4"></div>
+
+  <div class="sec-title mt-6">Combination Table</div>
+  <div class="sec-sub" style="margin-bottom:10px;">Opening property (row) × Closing property (column) = result skillchain</div>
+  <div class="tbl-wrap" id="comboTbl"></div>
+</div>
+
+<!-- ══════════════════ MAGIC BURST ══════════════════ -->
+<div class="pane" id="pane-magicburst">
+  <div class="sec-title">Magic Burst Reference</div>
+  <div class="sec-sub">Cast the matching element within ~10 seconds of the skillchain forming for a Magic Burst bonus.</div>
+
+  <div class="mb-grid" id="mbGrid"></div>
+
+  <div class="sec-title mt-6">Damage Bonus by Steps</div>
+  <table class="dmg-tbl mt-4">
+    <thead><tr><th>Skillchain Steps</th><th>Magic Burst Bonus</th></tr></thead>
+    <tbody>
+      <tr><td>2-step chain</td><td>+35%</td></tr>
+      <tr><td>3-step chain</td><td>+45%</td></tr>
+      <tr><td>4-step chain</td><td>+55%</td></tr>
+      <tr><td>Each additional step</td><td>+10% more</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sec-title mt-6">Notes</div>
+  <ul class="notes mt-4">
+    <li>• The magic burst window opens immediately after the skillchain animation starts and lasts ~10 seconds.</li>
+    <li>• The window closes early if another weapon skill with SC properties lands. No-property WS (Spirit Taker, Sanguine Blade, Mystic Boon, Spirits Within) are safe to use.</li>
+    <li>• Magic burst damage bonus from equipment caps at +40%. Magic Burst Bonus job trait, Job Points, and Gifts are separate and have no known cap.</li>
+    <li>• Wyvern breath attacks gain only the magic accuracy bonus, not the damage bonus.</li>
+    <li>• Radiance and Umbra require Aeonic Aftermath and burst all eight elements.</li>
+    <li>• Higher magic accuracy from bursting is estimated at +100 (unverified).</li>
+  </ul>
+</div>
+
+<!-- ══════════════════ WEAPON SKILLS ══════════════════ -->
+<div class="pane" id="pane-weaponskills">
+  <div class="sec-title">Weapon Skills</div>
+  <div class="ws-filters">
+    <input type="text" id="wstSrch" placeholder="Search name, weapon, job…" oninput="filterWsTable()">
+    <select id="wstWeap" onchange="filterWsTable()"><option value="">All Weapons</option></select>
+    <select id="wstProp" onchange="filterWsTable()"><option value="">All Properties</option></select>
+  </div>
+  <div class="wst-wrap">
+    <table class="wst">
+      <thead><tr><th>Weapon Skill</th><th>Weapon</th><th>Job(s)</th><th>SC Properties</th></tr></thead>
+      <tbody id="wstBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+
+const EL_ICON = { Fire:'🔥', Ice:'❄️', Wind:'🌬️', Earth:'🌿', Thunder:'⚡', Water:'💧', Light:'✨', Dark:'🌑', All:'⭐' };
+const EL_CLR  = { Fire:'#e85d04', Ice:'#48cae4', Wind:'#55a630', Earth:'#6a994e', Thunder:'#9b5de5', Water:'#0096c7', Light:'#f9c74f', Dark:'#9d4edd', All:'#d4af37' };
+
+const PROPS = {
+  // Level 1
+  liquefaction: { id:'liquefaction', name:'Liquefaction', level:1, elements:['Fire'],                         color:'#e85d04' },
+  scission:     { id:'scission',     name:'Scission',     level:1, elements:['Earth'],                        color:'#6a994e' },
+  reverberation:{ id:'reverberation',name:'Reverberation',level:1, elements:['Water'],                        color:'#0096c7' },
+  detonation:   { id:'detonation',   name:'Detonation',   level:1, elements:['Wind'],                         color:'#55a630' },
+  induration:   { id:'induration',   name:'Induration',   level:1, elements:['Ice'],                          color:'#48cae4' },
+  impaction:    { id:'impaction',    name:'Impaction',    level:1, elements:['Thunder'],                       color:'#9b5de5' },
+  transfixion:  { id:'transfixion',  name:'Transfixion',  level:1, elements:['Light'],                        color:'#f9c74f' },
+  compression:  { id:'compression',  name:'Compression',  level:1, elements:['Dark'],                         color:'#9d4edd' },
+  // Level 2
+  fusion:       { id:'fusion',       name:'Fusion',        level:2, elements:['Fire','Light'],                color:'#f77f00' },
+  distortion:   { id:'distortion',   name:'Distortion',   level:2, elements:['Ice','Water'],                  color:'#0077b6' },
+  gravitation:  { id:'gravitation',  name:'Gravitation',  level:2, elements:['Earth','Dark'],                 color:'#8b3a9b' },
+  fragmentation:{ id:'fragmentation',name:'Fragmentation',level:2, elements:['Wind','Thunder'],               color:'#2d9cdb' },
+  // Level 3
+  light:        { id:'light',        name:'Light',         level:3, elements:['Fire','Wind','Thunder','Light'],color:'#ffe169' },
+  darkness:     { id:'darkness',     name:'Darkness',      level:3, elements:['Ice','Water','Earth','Dark'],   color:'#a060e8' },
+  // Level 4
+  light4:       { id:'light4',       name:'Light (Lv.4)', level:4, elements:['All'],                          color:'#fff3b0' },
+  darkness4:    { id:'darkness4',    name:'Darkness (Lv.4)',level:4,elements:['All'],                          color:'#7040c0' },
+  radiance:     { id:'radiance',     name:'Radiance',      level:4, elements:['All'],                          color:'#ffd700', aeonic:true },
+  umbra:        { id:'umbra',        name:'Umbra',          level:4, elements:['All'],                          color:'#4a1e8a', aeonic:true },
+};
+
+// opening:closing → result
+const COMBOS = {
+  // L1 self-chains
+  'liquefaction:liquefaction':'liquefaction', 'scission:scission':'scission',
+  'reverberation:reverberation':'reverberation', 'detonation:detonation':'detonation',
+  'induration:induration':'induration', 'impaction:impaction':'impaction',
+  'transfixion:transfixion':'transfixion', 'compression:compression':'compression',
+  // L1 → L2
+  'liquefaction:impaction':'fusion',
+  'induration:reverberation':'distortion',
+  'transfixion:scission':'distortion',
+  'compression:scission':'gravitation',
+  'detonation:impaction':'fragmentation',
+  'reverberation:scission':'fragmentation',
+  // L2 → L3
+  'gravitation:gravitation':'darkness',
+  'gravitation:distortion':'darkness',
+  'distortion:fusion':'light',
+  'fragmentation:fusion':'light',
+  // L3 → L4
+  'light:light':'light4',
+  'darkness:darkness':'darkness4',
+};
+
+// element → sc properties that allow burst
+const MB = {
+  Fire:    ['liquefaction','fusion','light','light4','radiance','umbra'],
+  Ice:     ['induration','distortion','darkness','darkness4','radiance','umbra'],
+  Wind:    ['detonation','fragmentation','light','light4','radiance','umbra'],
+  Earth:   ['scission','gravitation','darkness','darkness4','radiance','umbra'],
+  Thunder: ['impaction','fragmentation','light','light4','radiance','umbra'],
+  Water:   ['reverberation','distortion','darkness','darkness4','radiance','umbra'],
+  Light:   ['transfixion','fusion','light','light4','radiance','umbra'],
+  Dark:    ['compression','gravitation','darkness','darkness4','radiance','umbra'],
+};
+
+const WS = [
+  // Hand-to-Hand
+  {n:'Combo',            w:'Hand-to-Hand', j:'MNK',       p:['impaction']},
+  {n:'Shoulder Tackle',  w:'Hand-to-Hand', j:'MNK',       p:['reverberation']},
+  {n:'One Inch Punch',   w:'Hand-to-Hand', j:'MNK',       p:['compression']},
+  {n:'Backhand Blow',    w:'Hand-to-Hand', j:'MNK',       p:['distortion','reverberation']},
+  {n:'Raging Fists',     w:'Hand-to-Hand', j:'MNK',       p:['impaction']},
+  {n:'Spinning Attack',  w:'Hand-to-Hand', j:'MNK',       p:['liquefaction','impaction']},
+  {n:'Howling Fist',     w:'Hand-to-Hand', j:'MNK',       p:['impaction','transfixion']},
+  {n:"Dragon's Breath",  w:'Hand-to-Hand', j:'MNK',       p:['liquefaction','transfixion']},
+  {n:'Asuran Fists',     w:'Hand-to-Hand', j:'MNK/PUP',   p:['gravitation','distortion']},
+  {n:'Tornado Kick',     w:'Hand-to-Hand', j:'MNK',       p:['detonation','impaction']},
+  {n:'Shijin Spiral',    w:'Hand-to-Hand', j:'MNK',       p:['fusion','reverberation']},
+  {n:'Final Heaven',     w:'Hand-to-Hand', j:'MNK',       p:['light']},
+  {n:'Victory Smite',    w:'Hand-to-Hand', j:'MNK',       p:['light','transfixion']},
+  {n:"Ascetic's Fury",   w:'Hand-to-Hand', j:'MNK',       p:['scission','reverberation']},
+  // Dagger
+  {n:'Wasp Sting',       w:'Dagger',       j:'THF/DNC',   p:['scission']},
+  {n:'Gust Slash',       w:'Dagger',       j:'THF/DNC',   p:['detonation']},
+  {n:'Shadowstitch',     w:'Dagger',       j:'THF',       p:['reverberation']},
+  {n:'Viper Bite',       w:'Dagger',       j:'THF/DNC',   p:['scission']},
+  {n:'Cyclone',          w:'Dagger',       j:'THF/BRD/DNC',p:['detonation','distortion']},
+  {n:'Dancing Edge',     w:'Dagger',       j:'THF/DNC',   p:['scission','detonation']},
+  {n:'Shark Bite',       w:'Dagger',       j:'THF',       p:['gravitation','scission']},
+  {n:'Evisceration',     w:'Dagger',       j:'THF',       p:['gravitation','transfixion']},
+  {n:'Aeolian Edge',     w:'Dagger',       j:'THF',       p:['scission','detonation','impaction']},
+  {n:'Exenterator',      w:'Dagger',       j:'THF',       p:['scission','reverberation']},
+  {n:"Rudra's Storm",    w:'Dagger',       j:'THF',       p:['darkness','scission']},
+  {n:'Mordant Rime',     w:'Dagger',       j:'THF',       p:['distortion','reverberation']},
+  {n:'Pyric Kleos',      w:'Dagger',       j:'THF',       p:['fusion','scission']},
+  // Sword
+  {n:'Fast Blade',       w:'Sword',        j:'WAR/PLD/RDM',p:['scission']},
+  {n:'Burning Blade',    w:'Sword',        j:'WAR/PLD/RDM',p:['liquefaction']},
+  {n:'Flat Blade',       w:'Sword',        j:'WAR/PLD/RDM',p:['impaction']},
+  {n:'Shining Blade',    w:'Sword',        j:'PLD/RDM',   p:['scission']},
+  {n:'Seraph Blade',     w:'Sword',        j:'PLD/RDM',   p:['scission','transfixion']},
+  {n:'Circle Blade',     w:'Sword',        j:'PLD',       p:['reverberation','induration']},
+  {n:'Vorpal Blade',     w:'Sword',        j:'RDM/PLD',   p:['scission','transfixion']},
+  {n:'Swift Blade',      w:'Sword',        j:'WAR/PLD/RDM',p:['gravitation']},
+  {n:'Savage Blade',     w:'Sword',        j:'WAR/PLD/RDM',p:['fragmentation','scission']},
+  {n:'Requiescat',       w:'Sword',        j:'PLD/RDM',   p:['gravitation','scission']},
+  {n:'Death Blossom',    w:'Sword',        j:'RDM',       p:['reverberation','transfixion']},
+  {n:'Chant du Cygne',   w:'Sword',        j:'BRD',       p:['light','scission']},
+  {n:"Knights of Round", w:'Sword',        j:'PLD',       p:['light','scission']},
+  // Great Sword
+  {n:'Hard Slash',       w:'Great Sword',  j:'WAR/DRK/PLD',p:['scission']},
+  {n:'Power Slash',      w:'Great Sword',  j:'WAR/DRK/PLD',p:['transfixion']},
+  {n:'Frostbite',        w:'Great Sword',  j:'WAR/DRK/PLD',p:['induration']},
+  {n:'Freezebite',       w:'Great Sword',  j:'WAR/DRK/PLD',p:['induration','distortion']},
+  {n:'Shockwave',        w:'Great Sword',  j:'WAR/DRK/PLD',p:['reverberation']},
+  {n:'Sickle Moon',      w:'Great Sword',  j:'WAR/DRK',   p:['scission']},
+  {n:'Spinning Slash',   w:'Great Sword',  j:'WAR/DRK/PLD',p:['gravitation','transfixion']},
+  {n:'Ground Strike',    w:'Great Sword',  j:'WAR/DRK/PLD',p:['gravitation','distortion']},
+  {n:'Resolution',       w:'Great Sword',  j:'WAR',       p:['light','fragmentation']},
+  {n:'Insurgency',       w:'Great Sword',  j:'DRK',       p:['darkness','fragmentation']},
+  // Axe
+  {n:'Raging Axe',       w:'Axe',          j:'WAR/BST/DRK',p:['fragmentation','scission']},
+  {n:'Smash Axe',        w:'Axe',          j:'WAR/BST/DRK',p:['distortion','reverberation']},
+  {n:'Gale Axe',         w:'Axe',          j:'WAR/BST',   p:['detonation']},
+  {n:'Avalanche Axe',    w:'Axe',          j:'WAR/BST',   p:['distortion','reverberation']},
+  {n:'Spinning Axe',     w:'Axe',          j:'WAR/BST',   p:['reverberation','detonation']},
+  {n:'Rampage',          w:'Axe',          j:'WAR',       p:['scission','detonation']},
+  {n:'Calamity',         w:'Axe',          j:'WAR',       p:['gravitation','distortion']},
+  {n:'Ruinator',         w:'Axe',          j:'WAR/BST',   p:['darkness','gravitation']},
+  {n:'Decimation',       w:'Axe',          j:'WAR',       p:['fragmentation','reverberation']},
+  // Great Axe
+  {n:'Iron Tempest',     w:'Great Axe',    j:'WAR',       p:['fragmentation','detonation']},
+  {n:'Sturmwind',        w:'Great Axe',    j:'WAR',       p:['reverberation','scission']},
+  {n:"Ukko's Fury",      w:'Great Axe',    j:'WAR',       p:['light','reverberation']},
+  {n:'Steel Cyclone',    w:'Great Axe',    j:'WAR',       p:['fragmentation','reverberation']},
+  {n:"King's Justice",   w:'Great Axe',    j:'WAR',       p:['fragmentation','reverberation']},
+  {n:'Fell Cleave',      w:'Great Axe',    j:'WAR',       p:['fragmentation','scission']},
+  {n:'Cloudsplitter',    w:'Great Axe',    j:'WAR',       p:['darkness','scission']},
+  // Scythe
+  {n:'Slice',            w:'Scythe',       j:'DRK',       p:['scission']},
+  {n:'Shadow of Death',  w:'Scythe',       j:'DRK',       p:['compression','reverberation']},
+  {n:'Nightmare Scythe', w:'Scythe',       j:'DRK',       p:['fragmentation','induration']},
+  {n:'Spinning Scythe',  w:'Scythe',       j:'DRK',       p:['reverberation','induration']},
+  {n:'Vorpal Scythe',    w:'Scythe',       j:'DRK',       p:['gravitation','distortion']},
+  {n:'Guillotine',       w:'Scythe',       j:'DRK',       p:['fragmentation','distortion']},
+  {n:'Cross Reaper',     w:'Scythe',       j:'DRK',       p:['darkness']},
+  {n:'Spiral Hell',      w:'Scythe',       j:'DRK',       p:['gravitation','darkness']},
+  {n:'Catastrophe',      w:'Scythe',       j:'DRK',       p:['darkness','gravitation']},
+  {n:'Entropy',          w:'Scythe',       j:'DRK',       p:['darkness','scission']},
+  // Polearm
+  {n:'Double Thrust',    w:'Polearm',      j:'DRG',       p:['transfixion']},
+  {n:'Thunder Thrust',   w:'Polearm',      j:'DRG',       p:['impaction','transfixion']},
+  {n:'Leg Sweep',        w:'Polearm',      j:'DRG',       p:['fragmentation','impaction']},
+  {n:'Penta Thrust',     w:'Polearm',      j:'DRG',       p:['compression']},
+  {n:'Skewer',           w:'Polearm',      j:'DRG',       p:['transfixion','impaction']},
+  {n:'Vorpal Thrust',    w:'Polearm',      j:'DRG',       p:['transfixion','impaction']},
+  {n:'Wheeling Thrust',  w:'Polearm',      j:'DRG',       p:['fusion','detonation']},
+  {n:'Impulse Drive',    w:'Polearm',      j:'DRG',       p:['gravitation','transfixion']},
+  {n:'Drakesbane',       w:'Polearm',      j:'DRG',       p:['light','fragmentation']},
+  {n:'Stardiver',        w:'Polearm',      j:'DRG',       p:['light','transfixion']},
+  // Katana
+  {n:'Blade: Rin',       w:'Katana',       j:'NIN',       p:['transfixion']},
+  {n:'Blade: Retsu',     w:'Katana',       j:'NIN',       p:['scission']},
+  {n:'Blade: Teki',      w:'Katana',       j:'NIN',       p:['reverberation']},
+  {n:'Blade: To',        w:'Katana',       j:'NIN',       p:['induration','detonation']},
+  {n:'Blade: Chi',       w:'Katana',       j:'NIN',       p:['transfixion','impaction']},
+  {n:'Blade: Ei',        w:'Katana',       j:'NIN',       p:['compression']},
+  {n:'Blade: Jin',       w:'Katana',       j:'NIN',       p:['impaction','detonation']},
+  {n:'Blade: Ten',       w:'Katana',       j:'NIN',       p:['gravitation']},
+  {n:'Blade: Ku',        w:'Katana',       j:'NIN',       p:['gravitation','transfixion']},
+  {n:'Blade: Yu',        w:'Katana',       j:'NIN',       p:['scission','reverberation']},
+  {n:'Blade: Shun',      w:'Katana',       j:'NIN',       p:['distortion','scission']},
+  {n:'Blade: Hi',        w:'Katana',       j:'NIN',       p:['light','scission']},
+  // Great Katana
+  {n:'Tachi: Enpi',      w:'Great Katana', j:'SAM',       p:['transfixion','scission']},
+  {n:'Tachi: Hobaku',    w:'Great Katana', j:'SAM',       p:['induration']},
+  {n:'Tachi: Goten',     w:'Great Katana', j:'SAM',       p:['impaction','transfixion']},
+  {n:'Tachi: Kagero',    w:'Great Katana', j:'SAM',       p:['liquefaction']},
+  {n:'Tachi: Jinpu',     w:'Great Katana', j:'SAM',       p:['scission','detonation']},
+  {n:'Tachi: Koki',      w:'Great Katana', j:'SAM',       p:['reverberation','transfixion']},
+  {n:'Tachi: Yukikaze',  w:'Great Katana', j:'SAM',       p:['induration','distortion']},
+  {n:'Tachi: Gekko',     w:'Great Katana', j:'SAM',       p:['distortion','reverberation']},
+  {n:'Tachi: Kasha',     w:'Great Katana', j:'SAM',       p:['fusion','compression']},
+  {n:'Tachi: Ageha',     w:'Great Katana', j:'SAM',       p:['gravitation','scission']},
+  {n:'Tachi: Shoha',     w:'Great Katana', j:'SAM',       p:['light','gravitation']},
+  {n:'Tachi: Fudo',      w:'Great Katana', j:'SAM',       p:['light','gravitation']},
+  {n:'Tachi: Rana',      w:'Great Katana', j:'SAM',       p:['fragmentation','reverberation']},
+  // Club
+  {n:'Shining Strike',   w:'Club',         j:'WHM/SCH',   p:['transfixion']},
+  {n:'Seraph Strike',    w:'Club',         j:'WHM/SCH',   p:['transfixion']},
+  {n:'Brainshaker',      w:'Club',         j:'WHM/SCH',   p:['reverberation']},
+  {n:'Skullbreaker',     w:'Club',         j:'WHM/SCH',   p:['fragmentation','reverberation']},
+  {n:'True Strike',      w:'Club',         j:'WHM',       p:['impaction','distortion']},
+  {n:'Hexa Strike',      w:'Club',         j:'WHM/SCH',   p:['light','transfixion']},
+  {n:'Black Halo',       w:'Club',         j:'WHM/SCH',   p:['gravitation','compression']},
+  {n:'Judgment',         w:'Club',         j:'WHM/SCH',   p:['transfixion','light']},
+  {n:'Realmrazer',       w:'Club',         j:'WHM',       p:['light','scission']},
+  {n:'Expiacion',        w:'Club',         j:'WHM',       p:['scission','compression']},
+  {n:'Dagan',            w:'Club',         j:'WHM',       p:['fusion','gravitation']},
+  // Staff
+  {n:'Heavy Swing',      w:'Staff',        j:'BLM/WHM/SMN',p:['impaction']},
+  {n:'Rock Crusher',     w:'Staff',        j:'BLM/WHM/SMN',p:['reverberation','compression']},
+  {n:'Earth Crusher',    w:'Staff',        j:'BLM/WHM/SMN',p:['impaction','detonation']},
+  {n:'Starburst',        w:'Staff',        j:'BLM/WHM/SMN',p:['transfixion','reverberation']},
+  {n:'Sunburst',         w:'Staff',        j:'WHM/SMN',   p:['transfixion','liquefaction']},
+  {n:'Full Swing',       w:'Staff',        j:'BLM/WHM/SMN',p:['liquefaction','impaction']},
+  {n:'Retribution',      w:'Staff',        j:'BLM/WHM/SMN',p:['gravitation','reverberation']},
+  {n:'Cataclysm',        w:'Staff',        j:'BLM',       p:['darkness','distortion']},
+  {n:'Gate of Tartarus', w:'Staff',        j:'BLM',       p:['darkness','gravitation']},
+  // Archery
+  {n:'Flaming Arrow',    w:'Archery',      j:'RNG',       p:['liquefaction','transfixion']},
+  {n:'Piercing Arrow',   w:'Archery',      j:'RNG',       p:['transfixion','reverberation']},
+  {n:'Dulling Arrow',    w:'Archery',      j:'RNG',       p:['transfixion']},
+  {n:'Sidewinder',       w:'Archery',      j:'RNG',       p:['reverberation','detonation']},
+  {n:'Arching Arrow',    w:'Archery',      j:'RNG',       p:['fragmentation','reverberation']},
+  {n:'Empyreal Arrow',   w:'Archery',      j:'RNG',       p:['fusion','transfixion']},
+  {n:'Refulgent Arrow',  w:'Archery',      j:'RNG',       p:['light','transfixion']},
+  // Marksmanship
+  {n:'Hot Shot',         w:'Marksmanship', j:'RNG/COR',   p:['liquefaction','transfixion']},
+  {n:'Split Shot',       w:'Marksmanship', j:'RNG/COR',   p:['transfixion','reverberation']},
+  {n:'Slug Shot',        w:'Marksmanship', j:'RNG/COR',   p:['detonation','reverberation']},
+  {n:'Heavy Shot',       w:'Marksmanship', j:'RNG',       p:['fusion','transfixion']},
+  {n:'Detonator',        w:'Marksmanship', j:'RNG',       p:['fragmentation','transfixion']},
+  {n:'Last Stand',       w:'Marksmanship', j:'COR',       p:['fragmentation','reverberation']},
+  {n:'Coronach',         w:'Marksmanship', j:'COR',       p:['darkness','reverberation']},
+  {n:'Wildfire',         w:'Marksmanship', j:'COR',       p:['fusion','light']},
+  {n:'Leaden Salute',    w:'Marksmanship', j:'COR',       p:['darkness','reverberation']},
+];
+
+// ═══════════════════════════════════════════════
+// CHAIN LOGIC
+// ═══════════════════════════════════════════════
+
+function resolveChain(openProps, closeProps) {
+  let best = null, bestLv = -1;
+  for (const op of openProps) for (const cp of closeProps) {
+    const r = COMBOS[`${op}:${cp}`];
+    if (r && PROPS[r].level > bestLv) { best = r; bestLv = PROPS[r].level; }
+  }
+  return best;
+}
+
+function getBurstElements(scId) {
+  return Object.entries(MB).filter(([,ids]) => ids.includes(scId)).map(([el]) => el);
+}
+
+// Compute running chain results, returning array of scIds (null = no chain)
+function computeResults(steps) {
+  const out = [];
+  let resonance = null;
+  for (let i = 0; i < steps.length - 1; i++) {
+    const openProps = (resonance && i > 0) ? [resonance] : steps[i].p;
+    const sc = resolveChain(openProps, steps[i+1].p);
+    out.push(sc);
+    resonance = sc;
+  }
+  return out;
+}
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+
+let chain = [];        // [{n, w, p:[propIds]}]
+let wFilter = 'all';
+let manualSel = new Set();
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+
+function mkBadge(prop) {
+  const s = document.createElement('span');
+  s.className = 'badge';
+  s.style.cssText = `color:${prop.color};border-color:${prop.color}55;`;
+  s.innerHTML = `<span class="dot" style="background:${prop.color}"></span>${prop.name}`;
+  return s;
+}
+
+function mkElChip(el) {
+  const s = document.createElement('span');
+  s.className = 'el-chip';
+  s.style.cssText = `background:${EL_CLR[el]}22;color:${EL_CLR[el]};border:1px solid ${EL_CLR[el]}44;`;
+  s.innerHTML = `${EL_ICON[el]} ${el}`;
+  return s;
+}
+
+// ═══════════════════════════════════════════════
+// CHAIN BUILDER
+// ═══════════════════════════════════════════════
+
+function renderChain() {
+  const rail = document.getElementById('chainRail');
+  const empty = document.getElementById('chainEmpty');
+  const burstPanel = document.getElementById('burstPanel');
+  rail.innerHTML = '';
+
+  if (chain.length === 0) {
+    empty.style.display = 'block';
+    rail.appendChild(empty);
+    burstPanel.style.display = 'none';
+    refreshCompat();
+    return;
+  }
+  empty.style.display = 'none';
+
+  const results = computeResults(chain);
+  let lastSC = null;
+
+  chain.forEach((step, i) => {
+    // WS card
+    const node = document.createElement('div');
+    node.className = 'ws-node';
+    const card = document.createElement('div');
+    card.className = 'ws-card';
+
+    const rmBtn = document.createElement('button');
+    rmBtn.className = 'rm-btn';
+    rmBtn.textContent = '✕';
+    rmBtn.onclick = e => { e.stopPropagation(); chain.splice(i,1); renderChain(); };
+
+    const nm = document.createElement('div'); nm.className = 'ws-name'; nm.textContent = step.n;
+    const wp = document.createElement('div'); wp.className = 'ws-weap'; wp.textContent = step.w || 'Manual';
+    const pr = document.createElement('div'); pr.className = 'ws-props';
+    if (!step.p.length) {
+      pr.innerHTML = '<span style="color:var(--text-2);font-size:.7rem;font-style:italic">No properties</span>';
+    } else {
+      step.p.forEach(id => { const prop = PROPS[id]; if (prop) pr.appendChild(mkBadge(prop)); });
+    }
+
+    card.append(rmBtn, nm, wp, pr);
+    node.appendChild(card);
+    rail.appendChild(node);
+
+    // Bridge + SC result between steps
+    if (i < chain.length - 1) {
+      const sc = results[i];
+      if (sc) lastSC = sc;
+
+      const bridge = document.createElement('div');
+      bridge.className = 'sc-bridge';
+
+      const pill = document.createElement('div');
+      pill.className = 'sc-pill' + (sc ? '' : ' miss');
+      if (sc) {
+        const p = PROPS[sc];
+        pill.textContent = p.name;
+        pill.style.cssText = `color:${p.color};border-color:${p.color};background:${p.color}18;`;
+        const lv = document.createElement('sup');
+        lv.style.cssText = 'font-size:.6rem;opacity:.7;margin-left:3px;';
+        lv.textContent = `Lv${p.level}`;
+        pill.appendChild(lv);
+      } else {
+        pill.textContent = '✕ No Chain';
+      }
+
+      const line = document.createElement('div');
+      line.className = 'bridge-line';
+      bridge.append(pill, line);
+      rail.appendChild(bridge);
+    }
+  });
+
+  // Burst panel
+  if (lastSC) {
+    burstPanel.style.display = 'block';
+    const chips = document.getElementById('burstChips');
+    chips.innerHTML = '';
+    const scProp = PROPS[lastSC];
+
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'color:var(--text-1);font-size:.8rem;align-self:center;';
+    lbl.textContent = `After ${scProp.name}: `;
+    chips.appendChild(lbl);
+
+    getBurstElements(lastSC).forEach(el => {
+      const chip = document.createElement('div');
+      chip.className = 'burst-chip';
+      chip.style.cssText = `color:${EL_CLR[el]};border-color:${EL_CLR[el]}66;background:${EL_CLR[el]}18;`;
+      chip.innerHTML = `${EL_ICON[el]} ${el}`;
+      chips.appendChild(chip);
+    });
+  } else {
+    burstPanel.style.display = 'none';
+  }
+
+  refreshCompat();
+}
+
+function getResonance() {
+  if (chain.length === 0) return null;
+  const results = computeResults(chain);
+  const lastSC = results[results.length - 1];
+  return lastSC;  // null if no chain formed yet at last step
+}
+
+function refreshCompat() {
+  const rows = document.querySelectorAll('.ws-row[data-idx]');
+  if (chain.length === 0) {
+    rows.forEach(r => r.classList.remove('dim'));
+    return;
+  }
+  // Compute what the opening resonance for the next step would be
+  const res = getResonance();
+  const lastStep = chain[chain.length - 1];
+  const openProps = (res && chain.length > 1) ? [res] : lastStep.p;
+
+  rows.forEach(r => {
+    const idx = parseInt(r.dataset.idx);
+    const ws = WS[idx];
+    const sc = resolveChain(openProps, ws.p);
+    r.classList.toggle('dim', !sc);
+  });
+}
+
+function addWsStep(ws) {
+  chain.push({ n: ws.n, w: ws.w, p: ws.p });
+  renderChain();
+}
+
+function addManualStep() {
+  if (!manualSel.size) { alert('Select at least one property.'); return; }
+  const ids = [...manualSel];
+  const names = ids.map(id => PROPS[id]?.name || id).join(' / ');
+  chain.push({ n: `Custom (${names})`, w: '', p: ids });
+  manualSel.clear();
+  document.querySelectorAll('.prop-sel-btn.on').forEach(b => b.classList.remove('on'));
+  renderChain();
+}
+
+function clearChain() { chain = []; renderChain(); }
+
+// ═══════════════════════════════════════════════
+// WS LIST
+// ═══════════════════════════════════════════════
+
+function buildWsFilters() {
+  const bar = document.getElementById('filtBar');
+  const types = [...new Set(WS.map(w => w.w))].sort();
+  types.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'filt-btn';
+    b.textContent = t;
+    b.onclick = () => setWF(t, b);
+    bar.appendChild(b);
+  });
+}
+
+function setWF(type, btn) {
+  wFilter = type;
+  document.querySelectorAll('#filtBar .filt-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderWsList();
+}
+
+function renderWsList() {
+  const list = document.getElementById('wsList');
+  const q = document.getElementById('wsSrch').value.toLowerCase();
+  list.innerHTML = '';
+
+  WS.forEach((ws, idx) => {
+    if (wFilter !== 'all' && ws.w !== wFilter) return;
+    if (q && !ws.n.toLowerCase().includes(q) && !ws.w.toLowerCase().includes(q) && !ws.j.toLowerCase().includes(q)) return;
+
+    const row = document.createElement('div');
+    row.className = 'ws-row';
+    row.dataset.idx = idx;
+
+    const info = document.createElement('div');
+    info.style.flex = '1';
+    info.innerHTML = `<div class="r-name">${ws.n}</div><div class="r-weap">${ws.w} · ${ws.j}</div>`;
+
+    const propsDiv = document.createElement('div');
+    propsDiv.className = 'r-props';
+    ws.p.forEach(id => { const prop = PROPS[id]; if (prop) propsDiv.appendChild(mkBadge(prop)); });
+    if (!ws.p.length) propsDiv.innerHTML = '<span style="color:var(--text-2);font-size:.7rem;">None</span>';
+
+    row.append(info, propsDiv);
+    row.onclick = () => addWsStep(ws);
+    list.appendChild(row);
+  });
+
+  refreshCompat();
+}
+
+function buildPropGrid() {
+  const grid = document.getElementById('propGrid');
+  Object.values(PROPS).filter(p => p.level <= 3).forEach(prop => {
+    const btn = document.createElement('button');
+    btn.className = 'prop-sel-btn';
+    btn.style.borderColor = prop.color + '55';
+    btn.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${prop.color};display:inline-block;flex-shrink:0;"></span>${prop.name}`;
+    btn.onclick = () => {
+      if (manualSel.has(prop.id)) {
+        manualSel.delete(prop.id);
+        btn.classList.remove('on');
+        btn.style.color = ''; btn.style.background = '';
+      } else {
+        manualSel.add(prop.id);
+        btn.classList.add('on');
+        btn.style.color = prop.color;
+        btn.style.background = prop.color + '18';
+        btn.style.borderColor = prop.color;
+      }
+    };
+    grid.appendChild(btn);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// SKILLCHAIN REFERENCE
+// ═══════════════════════════════════════════════
+
+function buildReference() {
+  const ids = { 1:'refL1', 2:'refL2', 3:'refL3', 4:'refL4' };
+  for (const [lvl, gridId] of Object.entries(ids)) {
+    const grid = document.getElementById(gridId);
+    Object.values(PROPS).filter(p => p.level === +lvl).forEach(prop => {
+      const card = document.createElement('div');
+      card.className = 'card ref-card';
+      card.style.borderColor = prop.color + '44';
+
+      const hdr = document.createElement('div');
+      hdr.className = 'ref-card-hdr';
+
+      const ico = document.createElement('div');
+      ico.className = 'ref-icon';
+      ico.style.cssText = `background:${prop.color}18;border:1px solid ${prop.color}44;color:${prop.color};font-size:1.1rem;`;
+      ico.textContent = prop.elements.length === 1 ? EL_ICON[prop.elements[0]] : prop.aeonic ? '✦' : prop.level >= 3 ? '◈' : '◆';
+
+      const ti = document.createElement('div');
+      ti.innerHTML = `<div class="ref-name" style="color:${prop.color}">${prop.name}</div>
+        <div class="ref-lv">${prop.aeonic ? 'Aeonic' : `Level ${prop.level}`}${prop.level >= 2 ? ` · ${prop.elements.join(' + ')}` : ''}</div>`;
+
+      hdr.append(ico, ti);
+      card.appendChild(hdr);
+
+      // Elements
+      const els = document.createElement('div');
+      els.className = 'ref-els';
+      prop.elements.forEach(el => els.appendChild(mkElChip(el)));
+      card.appendChild(els);
+
+      // Magic burst elements
+      const bursts = getBurstElements(prop.id);
+      if (bursts.length) {
+        const bl = document.createElement('div');
+        bl.style.cssText = 'font-size:.68rem;color:var(--text-2);margin-bottom:4px;';
+        bl.textContent = 'Bursts:';
+        card.appendChild(bl);
+        const bw = document.createElement('div');
+        bw.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;';
+        bursts.forEach(el => bw.appendChild(mkElChip(el)));
+        card.appendChild(bw);
+      }
+
+      // Created by
+      const createdBy = Object.entries(COMBOS).filter(([,v]) => v === prop.id).map(([k]) => k.split(':'));
+      if (createdBy.length) {
+        const fl = document.createElement('div');
+        fl.className = 'ref-from';
+        fl.textContent = 'Created by:';
+        card.appendChild(fl);
+        createdBy.forEach(([op, cp]) => {
+          const opP = PROPS[op], cpP = PROPS[cp];
+          if (!opP || !cpP) return;
+          const row = document.createElement('div');
+          row.className = 'ref-combo';
+          row.innerHTML = `<span style="color:${opP.color};font-size:.72rem;">${opP.name}</span>
+            <span style="color:var(--text-2);">→</span>
+            <span style="color:${cpP.color};font-size:.72rem;">${cpP.name}</span>`;
+          card.appendChild(row);
+        });
+      }
+
+      grid.appendChild(card);
+    });
+  }
+
+  buildComboTable();
+}
+
+function buildComboTable() {
+  const wrap = document.getElementById('comboTbl');
+  const openProps = Object.values(PROPS).filter(p => p.level <= 3);
+  const closeProps = [...openProps];
+
+  const tbl = document.createElement('table');
+  tbl.className = 'ctbl';
+
+  // Header
+  const thead = tbl.createTHead();
+  const hr = thead.insertRow();
+  const corner = document.createElement('th');
+  corner.textContent = 'Open ↓  Close →';
+  corner.style.textAlign = 'left';
+  hr.appendChild(corner);
+  closeProps.forEach(p => {
+    const th = document.createElement('th');
+    th.style.color = p.color;
+    th.textContent = p.name;
+    hr.appendChild(th);
+  });
+
+  // Body
+  const tbody = tbl.createTBody();
+  openProps.forEach(op => {
+    const row = tbody.insertRow();
+    const label = document.createElement('td');
+    label.style.cssText = `color:${op.color};font-weight:600;text-align:left;white-space:nowrap;`;
+    label.textContent = op.name;
+    row.appendChild(label);
+    closeProps.forEach(cp => {
+      const key = `${op.id}:${cp.id}`;
+      const res = COMBOS[key];
+      const cell = row.insertCell();
+      if (res) {
+        const rp = PROPS[res];
+        cell.className = 'hit';
+        cell.style.cssText = `color:${rp.color};background:${rp.color}12;font-size:.7rem;`;
+        cell.textContent = rp.name;
+      } else {
+        cell.className = 'miss';
+        cell.textContent = '—';
+      }
+    });
+  });
+
+  wrap.appendChild(tbl);
+}
+
+// ═══════════════════════════════════════════════
+// MAGIC BURST
+// ═══════════════════════════════════════════════
+
+function buildMagicBurst() {
+  const grid = document.getElementById('mbGrid');
+  const order = ['Fire','Ice','Wind','Earth','Thunder','Water','Light','Dark'];
+  order.forEach(el => {
+    const card = document.createElement('div');
+    card.className = 'card mb-card';
+    card.style.borderColor = EL_CLR[el] + '44';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'mb-el-hdr';
+    const ico = document.createElement('div');
+    ico.className = 'mb-el-icon';
+    ico.style.cssText = `background:${EL_CLR[el]}18;border:1px solid ${EL_CLR[el]}44;`;
+    ico.textContent = EL_ICON[el];
+    const nm = document.createElement('div');
+    nm.className = 'mb-el-name';
+    nm.style.color = EL_CLR[el];
+    nm.textContent = el;
+    hdr.append(ico, nm);
+    card.appendChild(hdr);
+
+    const chains = document.createElement('div');
+    chains.className = 'mb-chains';
+    MB[el].forEach(id => {
+      const prop = PROPS[id]; if (!prop) return;
+      chains.appendChild(mkBadge(prop));
+    });
+    card.appendChild(chains);
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// WEAPON SKILLS TABLE
+// ═══════════════════════════════════════════════
+
+function buildWsTable() {
+  const wSel = document.getElementById('wstWeap');
+  const pSel = document.getElementById('wstProp');
+  [...new Set(WS.map(w => w.w))].sort().forEach(t => {
+    const o = document.createElement('option'); o.value = t; o.textContent = t;
+    wSel.appendChild(o);
+  });
+  Object.values(PROPS).filter(p => p.level <= 3).forEach(p => {
+    const o = document.createElement('option'); o.value = p.id; o.textContent = p.name;
+    pSel.appendChild(o);
+  });
+  filterWsTable();
+}
+
+function filterWsTable() {
+  const q = document.getElementById('wstSrch').value.toLowerCase();
+  const w = document.getElementById('wstWeap').value;
+  const p = document.getElementById('wstProp').value;
+  const body = document.getElementById('wstBody');
+  body.innerHTML = '';
+
+  WS.filter(ws => {
+    if (w && ws.w !== w) return false;
+    if (p && !ws.p.includes(p)) return false;
+    if (q && !ws.n.toLowerCase().includes(q) && !ws.w.toLowerCase().includes(q) && !ws.j.toLowerCase().includes(q)) return false;
+    return true;
+  }).forEach(ws => {
+    const row = body.insertRow();
+    row.insertCell().innerHTML = `<strong>${ws.n}</strong>`;
+    row.insertCell().innerHTML = `<span style="color:var(--text-1)">${ws.w}</span>`;
+    row.insertCell().innerHTML = `<span style="color:var(--text-2);font-size:.75rem;">${ws.j}</span>`;
+    const pc = row.insertCell();
+    const pd = document.createElement('div');
+    pd.className = 'props-cell';
+    if (!ws.p.length) {
+      pd.innerHTML = '<span style="color:var(--text-2);font-size:.75rem;">None</span>';
+    } else {
+      ws.p.forEach(id => { const prop = PROPS[id]; if (prop) pd.appendChild(mkBadge(prop)); });
+    }
+    pc.appendChild(pd);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════
+
+function showTab(id, btn) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById(`pane-${id}`).classList.add('on');
+  if (btn) btn.classList.add('on');
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  buildWsFilters();
+  renderWsList();
+  buildPropGrid();
+  renderChain();
+  buildReference();
+  buildMagicBurst();
+  buildWsTable();
+});
+</script>
+</body>
+</html>

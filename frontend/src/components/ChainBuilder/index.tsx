@@ -1,0 +1,78 @@
+import { useState, useCallback } from 'react';
+import type { ChainStep, WeaponSkill } from '../../types';
+import { useData } from '../../context/DataContext';
+import { ChainRail } from './ChainRail';
+import { BurstPanel } from './BurstPanel';
+import { WsList } from './WsList';
+import { ManualProps } from './ManualProps';
+import { computeResults, resolveChain } from '../../lib/chain';
+
+export function ChainBuilder() {
+  const { data } = useData();
+  const [chain, setChain] = useState<ChainStep[]>([]);
+  const [wFilter, setWFilter] = useState('all');
+  const [manualSel, setManualSel] = useState<Set<string>>(new Set());
+
+  const addStep = useCallback((ws: WeaponSkill) => {
+    setChain(prev => [...prev, { n: ws.n, w: ws.w, p: ws.p }]);
+  }, []);
+
+  const removeStep = useCallback((idx: number) => {
+    setChain(prev => prev.filter((_, i) => i !== idx));
+  }, []);
+
+  const addManualStep = useCallback(() => {
+    if (!manualSel.size || !data) return;
+    const ids = [...manualSel];
+    const names = ids.map(id => data.props[id]?.name ?? id).join(' / ');
+    setChain(prev => [...prev, { n: `Custom (${names})`, w: '', p: ids }]);
+    setManualSel(new Set());
+  }, [manualSel, data]);
+
+  const clearChain = useCallback(() => setChain([]), []);
+
+  if (!data) return null;
+
+  const results = computeResults(chain, data.combos, data.props);
+  const lastSC = results.length > 0 ? results[results.length - 1] : null;
+
+  const isCompatible = (wsProps: string[]) => {
+    if (chain.length === 0) return true;
+    // Mirror computeResults exactly: use resonance as opener when one exists,
+    // otherwise use the last step's own properties
+    const resonance = results[results.length - 1];
+    const openProps = resonance ? [resonance] : chain[chain.length - 1].p;
+    return !!resolveChain(openProps, wsProps, data.combos, data.props);
+  };
+
+  return (
+    <div className="builder">
+      <div>
+        <div className="sec-title">Skillchain Builder</div>
+        <div className="sec-sub">Click a weapon skill below to add it to the chain. Each step resolves the skillchain formed and updates magic burst options.</div>
+      </div>
+      <ChainRail chain={chain} results={results} props={data.props} onRemove={removeStep} />
+      {lastSC && <BurstPanel scId={lastSC} props={data.props} mb={data.mb} />}
+      <div className="sel-area">
+        <WsList
+          ws={data.ws}
+          props={data.props}
+          wFilter={wFilter}
+          onFilterChange={setWFilter}
+          onSelect={addStep}
+          isCompatible={isCompatible}
+          hasChain={chain.length > 0}
+        />
+        <ManualProps
+          props={data.props}
+          manualSel={manualSel}
+          onSelChange={setManualSel}
+          onAdd={addManualStep}
+        />
+      </div>
+      <div>
+        <button className="clear-btn" onClick={clearChain}>✕ Clear Chain</button>
+      </div>
+    </div>
+  );
+}

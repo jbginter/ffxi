@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+backend/.venv/
+*.egg-info/
+.env
+.env.local
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Scraped wiki data — regenerate with: python3 scraper.py && python3 generate_ws.py
+/data/
+
+# Logs
+scraper.log
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
