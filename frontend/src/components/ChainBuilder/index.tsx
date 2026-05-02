@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type { CharacterJob, ChainStep, WeaponSkill } from '../../types';
 import { useData } from '../../context/DataContext';
 import { ChainRail } from './ChainRail';
@@ -31,24 +31,31 @@ export function ChainBuilder({ characterJobs }: { characterJobs: CharacterJob[] 
 
   const clearChain = useCallback(() => setChain([]), []);
 
-  if (!data) return null;
+  const visibleWs = useMemo(() => {
+    if (!data) return [];
+    const jobSet = new Set(characterJobs.map(j => j.job));
+    return jobSet.size > 0
+      ? data.ws.filter(ws => ws.j.split('/').some(j => jobSet.has(j)))
+      : data.ws;
+  }, [characterJobs, data]);
 
-  const jobSet = new Set(characterJobs.map(j => j.job));
-  const visibleWs = jobSet.size > 0
-    ? data.ws.filter(ws => ws.j.split('/').some(j => jobSet.has(j)))
-    : data.ws;
+  const results = useMemo(
+    () => data ? computeResults(chain, data.combos, data.props) : [],
+    [chain, data],
+  );
 
-  const results = computeResults(chain, data.combos, data.props);
-  const lastSC = results.length > 0 ? results[results.length - 1] : null;
-
-  const isCompatible = (wsProps: string[]) => {
-    if (chain.length === 0) return true;
-    // Mirror computeResults exactly: use resonance as opener when one exists,
-    // otherwise use the last step's own properties
+  // Mirror computeResults: use resonance as opener when one exists,
+  // otherwise fall back to the last step's own properties.
+  const isCompatible = useCallback((wsProps: string[]) => {
+    if (!data || chain.length === 0) return true;
     const resonance = results[results.length - 1];
     const openProps = resonance ? [resonance] : chain[chain.length - 1].p;
     return !!resolveChain(openProps, wsProps, data.combos, data.props);
-  };
+  }, [chain, results, data]);
+
+  if (!data) return null;
+
+  const lastSC = results[results.length - 1] ?? null;
 
   return (
     <div className="builder">

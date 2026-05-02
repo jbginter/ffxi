@@ -13,9 +13,10 @@ _SERVERS: dict[str, int] = {
     "Quetzalcoatl": 23, "Ragnarok": 24, "Shiva": 25, "Siren": 27,
     "Sylph": 29, "Valefor": 30,
 }
+_SERVER_LIST: list[str] = sorted(_SERVERS)
 
 def servers() -> list[str]:
-    return sorted(_SERVERS)
+    return _SERVER_LIST
 
 
 def _get_html(url: str) -> str:
@@ -30,6 +31,10 @@ def _extract_js_var(html: str, var: str) -> str | None:
 
 
 def lookup(server: str, name: str) -> dict:
+    if server not in _SERVERS:
+        return {"error": f"Unknown server: {server}"}
+    if not name or len(name) > 15:
+        return {"error": "Invalid character name"}
     url = f"https://www.ffxiah.com/player/{urllib.parse.quote(server)}/{urllib.parse.quote(name)}"
     try:
         html = _get_html(url)

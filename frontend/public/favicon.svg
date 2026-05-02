@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <radialGradient id="bg" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#1a1530"/>
+      <stop offset="100%" stop-color="#07070d"/>
+    </radialGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="0.8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="url(#bg)"/>
+  <rect width="32" height="32" rx="6" fill="none" stroke="#2a2a40" stroke-width="0.8"/>
+
+  <!-- Sword 2 (\ — SE to NW, drawn behind) -->
+  <!-- Blade -->
+  <line x1="25" y1="26" x2="8"  y2="7"  stroke="#8a6820" stroke-width="2"   stroke-linecap="round"/>
+  <!-- Crossguard: perpendicular to (\) blade -->
+  <line x1="20" y1="24" x2="24" y2="20" stroke="#8a6820" stroke-width="2.8" stroke-linecap="round"/>
+  <!-- Pommel -->
+  <circle cx="25.5" cy="26.5" r="1.6" fill="#8a6820"/>
+
+  <!-- Sword 1 (/ — SW to NE, drawn in front) -->
+  <!-- Blade -->
+  <line x1="7"  y1="26" x2="24" y2="7"  stroke="#d4af37" stroke-width="2"   stroke-linecap="round" filter="url(#glow)"/>
+  <!-- Crossguard: perpendicular to (/) blade -->
+  <line x1="8"  y1="20" x2="12" y2="24" stroke="#d4af37" stroke-width="2.8" stroke-linecap="round"/>
+  <!-- Pommel -->
+  <circle cx="6.5" cy="26.5" r="1.6" fill="#d4af37"/>
+
+  <!-- Crossing spark -->
+  <circle cx="15.5" cy="16.5" r="1.4" fill="#ffe88a" opacity="0.85"/>
+</svg>
