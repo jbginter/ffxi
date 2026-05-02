@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { fetchCharacter, fetchServers } from '../../lib/api';
 import type { AHSale, CharacterJob, CharacterProfile, FFXIAHCharacter } from '../../types';
 
+function charUrl(server: string, name: string) {
+  return `https://www.ffxiah.com/player/${encodeURIComponent(server)}/${encodeURIComponent(name)}`;
+}
+
 const JOBS = [
   'WAR','MNK','WHM','BLM','RDM','THF','PLD','DRK','BST','BRD',
   'RNG','SAM','NIN','DRG','SMN','BLU','COR','PUP','DNC','SCH','GEO','RUN',
@@ -166,6 +170,7 @@ export function Character({ onJobsChange }: { onJobsChange: (jobs: CharacterJob[
                   <thead>
                     <tr style={{ borderBottom: '1px solid var(--border)' }}>
                       <th style={thStyle}>Date</th>
+                      <th style={thStyle}>Item</th>
                       <th style={thStyle}>Seller</th>
                       <th style={thStyle}>Buyer</th>
                       <th style={{ ...thStyle, textAlign: 'right' }}>Price</th>
@@ -175,8 +180,28 @@ export function Character({ onJobsChange }: { onJobsChange: (jobs: CharacterJob[
                     {(lookup.sales as AHSale[]).map((s, i) => (
                       <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
                         <td style={tdStyle}>{formatDate(s.saleon)}</td>
-                        <td style={tdStyle}>{s.seller_name}</td>
-                        <td style={tdStyle}>{s.buyer_name}</td>
+                        <td style={tdStyle}>
+                          <a
+                            href={`https://www.ffxiah.com/item/${s.int_id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={ahLinkStyle}
+                          >
+                            {s.en_name || s.jp_name}
+                            {s.countof > 1 && <span style={{ color: 'var(--text-2)', marginLeft: 4 }}>×{s.countof}</span>}
+                          </a>
+                        </td>
+                        <td style={tdStyle}>
+                          <a href={charUrl(lookup.server, s.seller_name)} target="_blank" rel="noreferrer" style={ahLinkStyle}>
+                            {s.seller_name}
+                          </a>
+                        </td>
+                        <td style={tdStyle}>
+                          {s.buyer_name
+                            ? <a href={charUrl(lookup.server, s.buyer_name)} target="_blank" rel="noreferrer" style={ahLinkStyle}>{s.buyer_name}</a>
+                            : <span style={{ color: 'var(--text-2)' }}>—</span>
+                          }
+                        </td>
                         <td style={{ ...tdStyle, textAlign: 'right', color: '#7ab3e0', fontWeight: 600 }}>
                           {formatGil(s.price)}
                         </td>
@@ -277,6 +302,10 @@ const jobChipStyle: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 4,
   padding: '5px 10px', background: 'var(--bg-3)', border: '1px solid var(--border)',
   borderRadius: 6, fontSize: '.8rem',
+};
+
+const ahLinkStyle: React.CSSProperties = {
+  color: 'var(--gold)', textDecoration: 'none',
 };
 
 const thStyle: React.CSSProperties = {

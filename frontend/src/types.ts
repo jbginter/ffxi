@@ -42,10 +42,18 @@ export interface CharacterProfile {
 
 export interface AHSale {
   saleon: number;
-  seller_name: string;
-  buyer_name: string;
   price: number;
-  stack?: boolean;
+  countof: number;
+  stack_size: number;
+  int_id: number;
+  en_name: string;
+  jp_name: string;
+  buyer_name: string;
+  buyer_id: number;
+  buyer_server: number;
+  seller_name: string;
+  seller_id: number;
+  seller_server: number;
 }
 
 export interface FFXIAHCharacter {
