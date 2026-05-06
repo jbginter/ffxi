@@ -45,6 +45,34 @@ Both containers mount their source directories as volumes, so **hot-reload works
 
 ---
 
+## Testing
+
+### Locally
+
+```bash
+# Backend — pytest (50 tests across data integrity, ffxiah logic, API endpoints)
+backend/.venv/bin/python -m pytest -v
+
+# Frontend — vitest (chain logic: resolveChain, getBurstElements, computeResults)
+cd frontend && npm test
+```
+
+### Via Docker
+
+The `test` profile adds one-shot containers that exit after the suite finishes:
+
+```bash
+# Backend tests
+docker compose --profile test run --rm backend-test
+
+# Frontend tests
+docker compose --profile test run --rm frontend-test
+```
+
+Neither test service starts the dev servers — they run independently and cleanly exit with the pytest/vitest exit code.
+
+---
+
 ## Running locally (without Docker)
 
 ### Prerequisites
@@ -92,9 +120,10 @@ The `data/` directory (~280 MB of raw wiki pages) is gitignored. Only the small 
 ## Project Structure
 
 ```
-├── api/                        Vercel serverless function
+├── api/                        Vercel serverless functions
 ├── backend/
 │   ├── data/                   Game data as Python modules (committed)
+│   ├── tests/                  pytest suite (data integrity, ffxiah, API)
 │   ├── ffxiah.py               FFXIAH character lookup proxy
 │   └── main.py                 FastAPI app (local & Docker)
 ├── frontend/
@@ -103,11 +132,14 @@ The `data/` directory (~280 MB of raw wiki pages) is gitignored. Only the small 
 │       │   ├── ChainBuilder/   Skillchain builder (5 files)
 │       │   ├── Character/      Player profile & FFXIAH lookup
 │       │   ├── MagicBurst/
+│       │   ├── SCPlanner/      Target-SC → opener/closer finder
 │       │   ├── SkillchainReference/
 │       │   ├── WeaponSkills/
 │       │   └── shared/         Badge, ElChip
 │       ├── context/            DataContext (global game data)
-│       └── lib/                Chain logic, API client, constants
+│       └── lib/                Chain logic, API client, constants, tests
+├── conftest.py                 pytest root — adds project root to sys.path
+├── pytest.ini                  pytest config (testpaths = backend/tests)
 ├── Dockerfile.backend
 ├── docker-compose.yml
 ├── generate_ws.py              Regenerates weapon_skills.py from scrape
