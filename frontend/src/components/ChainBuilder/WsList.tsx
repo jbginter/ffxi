@@ -48,9 +48,9 @@ export function WsList({ ws, props, wFilter, onFilterChange, onSelect, isCompati
         ))}
       </div>
       <div className="ws-list-scroll">
-        {filtered.map((w, idx) => (
+        {filtered.map(w => (
             <div
-              key={idx}
+              key={w.n}
               className="ws-row"
               onClick={() => onSelect(w)}
             >

@@ -27,7 +27,7 @@ export interface GameData {
   ws: WeaponSkill[];
 }
 
-export type TabId = 'builder' | 'reference' | 'magicburst' | 'weaponskills' | 'character';
+export type TabId = 'builder' | 'planner' | 'reference' | 'magicburst' | 'weaponskills' | 'character';
 
 export interface CharacterJob {
   job: string;

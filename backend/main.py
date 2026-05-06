@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,12 +11,20 @@ from .ffxiah import lookup, servers
 
 app = FastAPI(title="FFXI Skillchain API")
 
+_raw = os.getenv("CORS_ORIGINS", "http://localhost:5173")
+_origins = [o.strip() for o in _raw.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=_origins,
     allow_methods=["GET"],
     allow_headers=["Content-Type"],
 )
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 
 @app.get("/api/data")

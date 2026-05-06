@@ -3,6 +3,7 @@ import { DataProvider, useData } from './context/DataContext';
 import { Header } from './components/Header';
 import { Tabs } from './components/Tabs';
 import { ChainBuilder } from './components/ChainBuilder';
+import { SCPlanner } from './components/SCPlanner';
 import { SkillchainReference } from './components/SkillchainReference';
 import { MagicBurst } from './components/MagicBurst';
 import { WeaponSkills } from './components/WeaponSkills';
@@ -11,6 +12,7 @@ import type { CharacterJob, TabId } from './types';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'builder',      label: 'Chain Builder' },
+  { id: 'planner',      label: 'SC Planner' },
   { id: 'reference',    label: 'Skillchain Reference' },
   { id: 'magicburst',   label: 'Magic Burst' },
   { id: 'weaponskills', label: 'Weapon Skills' },
@@ -55,6 +57,7 @@ function AppShell() {
       <div className={`pane${activeTab === 'builder'      ? ' on' : ''}`}>
         <ChainBuilder characterJobs={characterJobs} />
       </div>
+      <div className={`pane${activeTab === 'planner'      ? ' on' : ''}`}><SCPlanner /></div>
       <div className={`pane${activeTab === 'reference'    ? ' on' : ''}`}><SkillchainReference /></div>
       <div className={`pane${activeTab === 'magicburst'   ? ' on' : ''}`}><MagicBurst /></div>
       <div className={`pane${activeTab === 'weaponskills' ? ' on' : ''}`}><WeaponSkills /></div>
